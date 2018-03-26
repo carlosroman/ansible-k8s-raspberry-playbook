@@ -1,0 +1,30 @@
+---
+
+- name: Add Docker repo key
+  apt_key:
+    url: https://download.docker.com/linux/debian/gpg
+    state: present
+
+- name: Add Docker repo
+  apt_repository:
+    repo: deb [arch=armhf] https://download.docker.com/linux/debian stretch stable
+    filename: docker
+    state: present
+    update_cache: true
+
+- name: Install Docker
+  apt:
+    name: docker-ce
+    state: present
+
+- name: Add 'pi' user to Docker group
+  user:
+    name: pi
+    groups: docker
+    append: yes
+
+- name: MAke sure Docker is running
+  systemd:
+    name: docker.service
+    enabled: yes
+    state: started
