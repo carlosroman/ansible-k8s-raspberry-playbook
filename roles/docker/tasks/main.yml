@@ -23,7 +23,7 @@
     groups: docker
     append: yes
 
-- name: MAke sure Docker is running
+- name: Make sure Docker is running
   systemd:
     name: docker.service
     enabled: yes
