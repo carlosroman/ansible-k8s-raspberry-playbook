@@ -1,0 +1,58 @@
+---
+
+- hosts: all
+#  remote_user: pi
+  gather_facts: yes
+  become: true
+  become_method: sudo
+
+  pre_tasks:
+    - name: Update all deps
+      apt:
+        update_cache: yes
+        upgrade: dist
+        autoremove: yes
+
+  roles:
+    - docker
+    - k8s
+
+  tasks:
+    - name: Run hostname
+      command: 'hostname'
+    - name: Disable swap
+      shell: dphys-swapfile swapoff && dphys-swapfile uninstall && update-rc.d dphys-swapfile remove
+    - name: Swap summary
+      command: swapon --summary
+    - name: Copy old cmdline.txt
+      copy:
+        src: /boot/cmdline.txt
+        dest: /boot/cmdline.txt.bkup
+        remote_src: yes
+    - name: Add cpgroup flags
+      replace:
+        path: /boot/cmdline.txt
+        regexp: 'rootwait$'
+        replace: 'rootwait cgroup_enable=cpuset cgroup_memory=1'
+    - name: restart the box
+      command: /sbin/shutdown -r +1
+      async: 0
+      poll: 0
+    - name: wait for PI to come back
+      local_action: wait_for
+      args:
+        host: "{{ inventory_hostname }}"
+        port: 22
+        state: started
+        delay: 60
+        timeout: 300
+    - name: run docker
+      command: docker ps
+
+  post_tasks:
+    - name: Remove dependencies that are no longer required
+      apt:
+        autoremove: yes
+    - name: Remove useless packages from the cache
+      apt:
+        autoclean: yes
