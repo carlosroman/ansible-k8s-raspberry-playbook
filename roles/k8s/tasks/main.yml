@@ -15,4 +15,4 @@
 - name: Install kubeadm
   apt:
     name: kubeadm
-    state: present
+    state: latest

@@ -15,7 +15,7 @@
 - name: Install Docker
   apt:
     name: docker-ce
-    state: present
+    state: latest
 
 - name: Add 'pi' user to Docker group
   user:
