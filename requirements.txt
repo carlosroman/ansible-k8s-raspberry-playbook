@@ -7,6 +7,7 @@ idna==2.6
 Jinja2==2.10
 MarkupSafe==1.0
 paramiko==2.4.1
+passlib==1.7.1
 pyasn1==0.4.2
 pycparser==2.18
 PyNaCl==1.2.1
