@@ -1,0 +1,11 @@
+[all:vars]
+ansible_ssh_pass=raspberry
+
+[master]
+k8s-master ansible_ssh_host=192.168.0.10
+
+[nodes]
+k8s-node01 ansible_ssh_host=192.168.0.11
+k8s-node02 ansible_ssh_host=192.168.0.12
+k8s-node03 ansible_ssh_host=192.168.0.13
+k8s-node04 ansible_ssh_host=192.168.0.14
