@@ -12,7 +12,12 @@
     state: present
     update_cache: true
 
-- name: Install kubeadm
+- name: Install kube-stuff
   apt:
-    name: kubeadm
+    name: '{{ item }}'
     state: latest
+  with_items:
+    - kubelet
+    - kubeadm
+    - kubectl
+    - kubernetes-cni
