@@ -35,6 +35,18 @@ This assumes that you have an inventory file called `hosts` in the current direc
 
 ## Adding nodes
 
+To add a node just create a simple inventory file that has your master and the node(s) you wish to join your cluster. Then all you need to run is:
+
+```
+$ ansible-playbook -i <path to your inventory file> site.yml --tags "join"
+```
+
+Or
+
+```
+$ make join
+```
+
 ## Using Docker image
 
 If you want you can run the playbook from a Docker image. Just build the Docker image as follows:
