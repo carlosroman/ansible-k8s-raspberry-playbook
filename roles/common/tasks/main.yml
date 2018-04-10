@@ -1,0 +1,55 @@
+---
+
+- name: Add /etc/sysctl.d/local.conf
+  copy:
+    src: etc/sysctl.d/local.conf
+    dest: /etc/sysctl.d/local.conf
+
+- name: Hostname to set
+  debug:
+    msg: 'Setting host to {{ inventory_hostname }}'
+
+- name: Set hostname
+  hostname:
+    name: '{{ inventory_hostname }}'
+
+- name: Set hostname in /etc/hosts
+  replace:
+    path: /etc/hosts
+    regexp: 'raspberrypi'
+    replace: '{{ inventory_hostname }}'
+
+- name: Update SSH to not DNS lookup
+  replace:
+    path: /etc/ssh/sshd_config
+    regexp: '[#]UseDNS\s+[n][o]'
+    replace: 'UseDNS no'
+
+- name: Disable swap
+  shell: dphys-swapfile swapoff && dphys-swapfile uninstall && update-rc.d dphys-swapfile remove
+
+- name: Copy old cmdline.txt
+  copy:
+    src: /boot/cmdline.txt
+    dest: /boot/cmdline.txt.bkup
+    remote_src: yes
+
+- name: Add cpgroup flags
+  replace:
+    path: /boot/cmdline.txt
+    regexp: 'rootwait$'
+    replace: 'rootwait cgroup_enable=cpuset cgroup_enable=memory cgroup_memory=1'
+
+- name: restart the box
+  command: /sbin/shutdown -r +1
+  async: 0
+  poll: 0
+
+- name: wait for PI to come back
+  local_action: wait_for
+  args:
+    host: "{{ ansible_ssh_host }}"
+    port: 22
+    state: started
+    delay: 70
+    timeout: 300
