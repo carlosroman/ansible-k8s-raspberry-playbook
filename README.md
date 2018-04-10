@@ -1,4 +1,11 @@
-# Raspberry PI Kubernetes cluster Ansible playbook
+# Kubernetes on (vanilla) Raspbian Lite Ansible playbook
+
+This Ansible playbook is based on the guide written by [Alex Elli](https://gist.github.com/alexellis/fdbc90de7691a1b9edb545c17da2d975). 
+
+## Pre-reqs:
+
+* You must use an RPi 2 or 3 for use with Kubernetes
+* Each Pi should be running [Raspbian Lite](https://www.raspberrypi.org/downloads/raspbian/) (this was tested using Raspbian Stretch Lite March 2018) 
 
 ## Installation
 
@@ -17,4 +24,3 @@ Once you have your inventory file, then run the following command:
 ```
 $ ansible-playbook -i <path to your inventory file> site.yml
 ```
-
