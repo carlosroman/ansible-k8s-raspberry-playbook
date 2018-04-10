@@ -24,3 +24,27 @@ Once you have your inventory file, then run the following command:
 ```
 $ ansible-playbook -i <path to your inventory file> site.yml
 ```
+
+Or run the following `make` command:
+
+```
+$ make build
+```
+
+This assumes that you have an inventory file called `hosts` in the current directory.
+
+## Adding nodes
+
+## Using Docker image
+
+If you want you can run the playbook from a Docker image. Just build the Docker image as follows:
+
+```
+$ docker build -t k8s-raspberry .
+```
+
+Then you can run the following to build your cluster:
+
+```
+$ docker run -v <path to inventory file>:/usr/src/app/hosts --rm k8s-raspberry build
+```
