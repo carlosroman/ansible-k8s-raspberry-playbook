@@ -1,0 +1,16 @@
+---
+
+- hosts: all
+  gather_facts: no
+  become: true
+  become_method: sudo
+  tags:
+    - reset
+
+  tasks:
+    - name: K8s reset
+      command: kubeadm reset
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+    - name: Docker prune
+      command: docker system prune -af

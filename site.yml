@@ -94,7 +94,7 @@
     - name: kubeadm output
       debug:
         msg: '{{ kubeadm_init_command.stdout_lines }}'
-    - name: Get k8s versio
+    - name: Get k8s version
       command: bash -c "kubectl version | base64 | tr -d '\n'"
       register: kubectl_version_command
     - name: Install weave
@@ -150,10 +150,19 @@
     - k8s
     - status
     - test
+    - join
 
   tasks:
-    - name: Check everything works
+    - name: Check nodes
       command: kubectl get nodes
+      register: kubectl_check
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+    - name: Print kubectl check
+      debug:
+        msg: '{{ kubectl_check.stdout_lines }}'
+    - name: Check pods
+      command: kubectl get pods --namespace=kube-system
       register: kubectl_check
       environment:
         KUBECONFIG: /etc/kubernetes/admin.conf

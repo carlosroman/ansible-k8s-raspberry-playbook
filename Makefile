@@ -1,24 +1,32 @@
-.PHONY: build k8s join debug join upgrade status
+.PHONY: build k8s join debug join upgrade status reset
 
-ANSIBLE_PLAYBOOK = ansible-playbook -i hosts site.yml
-ANSIBLE_DEBUG =
+ANSIBLE_PLAYBOOK := site.yml
 
-debug: ANSIBLE_DEBUG = -v
+ANSIBLE_CMD := ansible-playbook -i hosts
+
+debug: ANSIBLE_DEBUG := -v
+
+debug: build
 
 build:
-	@$(ANSIBLE_PLAYBOOK) $(ANSIBLE_DEBUG)
+	@$(ANSIBLE_CMD) $(ANSIBLE_PLAYBOOK) $(ANSIBLE_DEBUG)
 
 setup:
-	@$(ANSIBLE_PLAYBOOK) $(ANSIBLE_DEBUG) --tags "setup"
+	@$(ANSIBLE_CMD) $(ANSIBLE_PLAYBOOK) $(ANSIBLE_DEBUG) --tags "setup"
 
 k8s:
-	@$(ANSIBLE_PLAYBOOK) $(ANSIBLE_DEBUG) --tags "k8s"
+	@$(ANSIBLE_CMD) $(ANSIBLE_PLAYBOOK) $(ANSIBLE_DEBUG) --tags "k8s"
 
 join:
-	@$(ANSIBLE_PLAYBOOK) $(ANSIBLE_DEBUG) --tags "join"
+	@$(ANSIBLE_CMD) $(ANSIBLE_PLAYBOOK) $(ANSIBLE_DEBUG) --tags "join"
 
 upgrade:
-	@$(ANSIBLE_PLAYBOOK) $(ANSIBLE_DEBUG) --tags "upgrade"
+	@$(ANSIBLE_CMD) $(ANSIBLE_PLAYBOOK) $(ANSIBLE_DEBUG) --tags "upgrade"
 
 status:
-	@$(ANSIBLE_PLAYBOOK) $(ANSIBLE_DEBUG) --tags "status"
+	@$(ANSIBLE_CMD) $(ANSIBLE_PLAYBOOK) $(ANSIBLE_DEBUG) --tags "status"
+
+reset: ANSIBLE_PLAYBOOK := reset.yml 
+
+reset: 
+	@$(ANSIBLE_CMD) $(ANSIBLE_PLAYBOOK) $(ANSIBLE_DEBUG)

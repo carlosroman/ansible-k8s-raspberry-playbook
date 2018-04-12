@@ -60,3 +60,17 @@ Then you can run the following to build your cluster:
 ```
 $ docker run -v <path to inventory file>:/usr/src/app/hosts --rm k8s-raspberry build
 ```
+
+## Tear down the cluster
+
+If you wanna reset the whole cluster to the state after a fresh install, just run the following command:
+
+```
+$ make reset
+```
+
+or
+
+```
+$ ansible-playbook -i <path to your inventory file> reset.yml
+```
