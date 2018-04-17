@@ -14,3 +14,23 @@
         KUBECONFIG: /etc/kubernetes/admin.conf
     - name: Docker prune
       command: docker system prune -af
+    - name: Reload systemd
+      systemd:
+        daemon_reload: yes
+    - name: Restart 
+      systemd:
+        name:  kubelet
+        state: restarted
+    - name: restart the box
+      command: /sbin/shutdown -r +1
+      async: 0
+      poll: 0
+    - name: wait for PI to come back
+      local_action: wait_for
+      args:
+        host: "{{ ansible_ssh_host }}"
+        port: 22
+        state: started
+        delay: 70
+        timeout: 300
+    

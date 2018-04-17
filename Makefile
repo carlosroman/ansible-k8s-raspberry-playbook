@@ -1,8 +1,14 @@
 .PHONY: build k8s join debug join upgrade status reset
 
+ANSIBLE_INVENTORY := hosts
+
+export ANSIBLE_INVENTORY
+
 ANSIBLE_PLAYBOOK := site.yml
 
-ANSIBLE_CMD := ansible-playbook -i hosts
+export ANSIBLE_PLAYBOOK
+
+ANSIBLE_CMD := ansible-playbook -i $(ANSIBLE_INVENTORY)
 
 debug: ANSIBLE_DEBUG := -v
 
