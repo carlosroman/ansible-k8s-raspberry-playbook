@@ -40,11 +40,14 @@
     regexp: 'rootwait$'
     replace: 'rootwait cgroup_enable=cpuset cgroup_enable=memory cgroup_memory=1'
 
-- name: Pass bridged IPv4 traffic to iptables chains
-  sysctl:
-    name: net.bridge.bridge-nf-call-iptables
-    value: 1
-    sysctl_set: yes
+- name: Install useful tools
+  apt: 
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - jq
+    - tree
+    - htop 
 
 - name: restart the box
   command: /sbin/shutdown -r +1
