@@ -6,6 +6,9 @@
   tags:
     - upgrade
 
+  roles:
+    - docker
+
   tasks:
     - name: Upgrade all deps
       apt:
@@ -37,7 +40,6 @@
       apt:
         autoclean: yes
 
-
 - hosts: all
   gather_facts: no
   become: true
@@ -51,6 +53,11 @@
     - { role: k8s, tags: ['k8s'] }
 
   tasks:
+    - name: Pass bridged IPv4 traffic to iptables chains
+      sysctl:
+        name: net.bridge.bridge-nf-call-iptables
+        value: 1
+        sysctl_set: yes
     - name: run docker
       command: docker ps
       register: install_docker_ps
@@ -87,37 +94,39 @@
         kubeadm_token: '{{ kubeadm_token_generate.stdout }}'
     - name: Debug 'kubeadm init' info
       debug:
-        msg: 'command to run: kubeadm init --token={{ kubeadm_token }} --apiserver-advertise-address={{ ansible_default_ipv4.address }} --pod-network-cidr 10.244.0.0/16'
+        msg: 'command to run: kubeadm init --token={{ kubeadm_token }} --apiserver-advertise-address={{ ansible_default_ipv4.address }} --pod-network-cidr 172.30.0.0/16'
     - name: Kube init
       command: 'kubeadm init --token={{ kubeadm_token }} --apiserver-advertise-address={{ ansible_default_ipv4.address }}'
       register: kubeadm_init_command
     - name: kubeadm output
       debug:
         msg: '{{ kubeadm_init_command.stdout_lines }}'
+    - name: Reload systemd files on Master
+      systemd:
+        daemon_reload: yes
     - name: Get k8s version
       command: bash -c "kubectl version | base64 | tr -d '\n'"
       register: kubectl_version_command
-    # - name: Download flannel
-    #   get_url:
-    #     # url: https://raw.githubusercontent.com/coreos/flannel/v0.10.0/Documentation/kube-flannel.yml
-    #     url: https://raw.githubusercontent.com/coreos/flannel/v0.9.1/Documentation/kube-flannel.yml
-    #     dest: /tmp/kube-flannel.yml
-    #     force: yes
-    # - name: Fix flannel yml
-    #   replace:
-    #     path: /tmp/kube-flannel.yml
-    #     regexp: 'amd64'
-    #     replace: 'arm'
-    # - name: Install flannel
-    #   command: kubectl create -f /tmp/kube-flannel.yml
-    #   environment:
-    #     KUBECONFIG: /etc/kubernetes/admin.conf
-    - name: Install weave
-      command: "kubectl apply -f 'https://cloud.weave.works/k8s/net?k8s-version={{ kubectl_version_command.stdout }}'"
+    - name: Download flannel
+      get_url:
+        url: https://raw.githubusercontent.com/coreos/flannel/v0.10.0/Documentation/kube-flannel.yml
+        dest: /tmp/kube-flannel.yml
+        force: yes
+    - name: Fix flannel yml
+      replace:
+        path: /tmp/kube-flannel.yml
+        regexp: 'amd64'
+        replace: 'arm'
+    - name: Install flannel
+      command: kubectl create -f /tmp/kube-flannel.yml
       environment:
         KUBECONFIG: /etc/kubernetes/admin.conf
+    # - name: Install weave
+    #   command: "kubectl apply -f 'https://cloud.weave.works/k8s/net?k8s-version={{ kubectl_version_command.stdout }}&env.IPALLOC_RANGE=172.30.0.0/16'"
+    #   environment:
+    #     KUBECONFIG: /etc/kubernetes/admin.conf
     - name: Try kubectl
-      command: kubectl get pods --namespace=kube-system
+      command: kubectl get pods -o wide
       environment:
         KUBECONFIG: /etc/kubernetes/admin.conf
       register: kubectl_get_pods 
@@ -145,6 +154,7 @@
   gather_facts: no
   become: true
   become_method: sudo
+  serial: 1
   tags:
     - k8s
     - install
@@ -156,6 +166,9 @@
         msg: "Command to run: {{ hostvars[groups['master'][0]].kubeadm_join_command_generate.stdout }}"
     - name: Join cluster
       command: "{{ hostvars[groups['master'][0]].kubeadm_join_command_generate.stdout }}"
+    - name: Reload systemd files on Nodes
+      systemd:
+        daemon_reload: yes
 
 - hosts: master
   gather_facts: no
