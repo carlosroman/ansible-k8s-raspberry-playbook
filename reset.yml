@@ -17,6 +17,14 @@
     - name: Reload systemd
       systemd:
         daemon_reload: yes
+    - name: Stop docker
+      systemd:
+        name: docker
+        state: stopped
+    - name: Remove /var/lib/docker
+      file:
+        path: /var/lib/docker
+        state: absent
     - name: Restart 
       systemd:
         name:  kubelet
