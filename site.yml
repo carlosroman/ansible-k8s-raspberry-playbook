@@ -96,7 +96,7 @@
       debug:
         msg: 'command to run: kubeadm init --token={{ kubeadm_token }} --apiserver-advertise-address={{ ansible_default_ipv4.address }} --pod-network-cidr 172.30.0.0/16'
     - name: Kube init
-      command: 'kubeadm init --token={{ kubeadm_token }} --apiserver-advertise-address={{ ansible_default_ipv4.address }}'
+      command: 'kubeadm init --token={{ kubeadm_token }} --apiserver-advertise-address={{ ansible_default_ipv4.address }} --pod-network-cidr 172.30.0.0/16'
       register: kubeadm_init_command
     - name: kubeadm output
       debug:
