@@ -12,7 +12,7 @@ This Ansible playbook is based on the guide written by [Alex Elli](https://gist.
 To install the dependencies needed to run this playbook either :
 
 ```
-$ pip install -r requirments.txt
+$ pip install -r requirements.txt
 ```
 
 ## Building
